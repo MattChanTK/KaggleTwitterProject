@@ -1,5 +1,6 @@
-.idea/
+*.idea/
 KaggleTwitterProject_Sentiment/.idea/
+
 
 # Compiled source #
 ###################
