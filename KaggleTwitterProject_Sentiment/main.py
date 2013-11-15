@@ -5,7 +5,7 @@ import numpy as np
 train_csv = open('../Data/train.csv', 'rb')
 train_data = csv.reader(train_csv, delimiter=',', quotechar='"')
 
-train_sample = list(train_data)
+train_sample = tuple(train_data)
 
 
 def column(matrix, i):
@@ -23,4 +23,4 @@ for p in train_s:
 for e in train_tweet:
     print e
 
-
+print train_num_sample
