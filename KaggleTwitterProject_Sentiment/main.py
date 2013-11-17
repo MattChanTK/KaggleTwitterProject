@@ -1,6 +1,6 @@
 import csv
 import numpy as np
-
+import en
 
 train_csv = open('../Data/train.csv', 'rb')
 train_data = csv.reader(train_csv, delimiter=',', quotechar='"')
@@ -16,7 +16,7 @@ for row in train_sample:
     train_s.append(row[4:9])
 train_tweet = column(train_sample, 1)
 train_num_sample = len(train_tweet)
-
+'''
 for p in train_s:
     print p
 
@@ -24,3 +24,6 @@ for e in train_tweet:
     print e
 
 print train_num_sample
+'''
+
+print(en.is_noun("tom"))
