@@ -1,8 +1,7 @@
 import csv
-import math
 import numpy as np
 import en
-import peach
+#import peach
 import sklearn.feature_extraction.text as skltext
 
 train_csv = open('../Data/train.csv', 'rb')
@@ -89,7 +88,10 @@ print ("These keywords remained:")
 neg_token_shape = neg_token.shape
 num_neg_tweet = neg_token_shape[0]
 num_neg_keyword = neg_token_shape[1]
-print('Number of Negative Tweets = '+ str(num_neg_tweet) )
-print('Number of Negative Keywords = '+ str(num_neg_keyword))
+print('Number of Negative Tweets = ' + str(num_neg_tweet) )
+print('Number of Negative Keywords = ' + str(num_neg_keyword))
 print neg_token
 
+all_neg_tweet = '; '.join(neg_tweet[1:num_neg_tweet])
+keywords = en.content.keywords(all_neg_tweet, top=50, nouns=False, singularize=True)
+print keywords
