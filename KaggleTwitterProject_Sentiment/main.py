@@ -52,10 +52,10 @@ for i in range(0, train_num_sample):
     if train_label[i] == 1:
         neg_tweet.append(train_tweet[i])
 num_neg_tweet = len(neg_tweet)
-print('Number of Negative Tweets = '+ str(num_neg_tweet) )
+print('Number of Negative Tweets = ' + str(num_neg_tweet) )
 
 # Tokenizing the tweet
-tokenizer = skltext.CountVectorizer(min_df=100)
+tokenizer = skltext.CountVectorizer(min_df=300)
 neg_token = tokenizer.fit_transform(neg_tweet)
 neg_token = neg_token.toarray()
 
@@ -80,9 +80,9 @@ print remove_key
 print ('Number of keyword deleted ' + str(len(remove_key)))
 neg_token = np.delete(neg_token, remove_key, 1)
 neg_keyword = np.delete(neg_keyword, remove_key)
-print ("These keywords remained:")
-print neg_keyword
-print ("These keywords remained:")
+#print ("These keywords remained:")
+#print neg_keyword
+
 
 # count the number of keyword and tweets
 neg_token_shape = neg_token.shape
@@ -90,7 +90,9 @@ num_neg_tweet = neg_token_shape[0]
 num_neg_keyword = neg_token_shape[1]
 print('Number of Negative Tweets = ' + str(num_neg_tweet) )
 print('Number of Negative Keywords = ' + str(num_neg_keyword))
-print neg_token
+neg_token_occur = sum(neg_token)
+keywords = dict(zip(neg_keyword, neg_token_occur))
+print keywords
 
 all_neg_tweet = '; '.join(neg_tweet[1:num_neg_tweet])
 keywords = en.content.keywords(all_neg_tweet, top=50, nouns=False, singularize=True)
