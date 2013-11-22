@@ -1,44 +1,27 @@
-import csv
+
 import numpy as np
 import en
 #import peach
 import sklearn.feature_extraction.text as skltext
 
-train_csv = open('../Data/train.csv', 'rb')
-train_data = csv.reader(train_csv, delimiter=',', quotechar='"')
+import import_data as ip
 
-train_sample = tuple(train_data)
+train_sample = ip.import_csv('../Data/train.csv')
+
 num_train_sample = len(train_sample)
 print('Number of Training Data: ' + str(num_train_sample))
 
 # only using a subset of the training set
 train_sample = train_sample[0:num_train_sample]
 
-
-def column(matrix, i):
-    return [row[i] for row in matrix]
-
-
 # extract the tweet strings
-train_tweet = column(train_sample, 1)
-# remove the heading
-train_tweet.pop(0)
+train_tweet = ip.extract_tweet(train_sample)
 # count the number of samples
 train_num_sample = len(train_tweet)
 print('Number of Training Tweet Subset: ' + str(train_num_sample))
 
 # extract the sentiment counts
-train_s = []
-for row in train_sample:
-    train_s.append(row[4:9])
-# remove the heading
-train_s.pop(0)
-#count the number of class
-num_class = len(train_s[0])
-#convert the labels to float
-for i in range(0, train_num_sample):
-    for j in range(0, num_class):
-        train_s[i][j] = float(train_s[i][j])
+train_s = ip.extract_sentiment(train_sample);
 
 #find the class with max membership
 train_label = []
@@ -64,7 +47,7 @@ neg_token = neg_token.toarray()
 analyze = tokenizer.build_analyzer()
 neg_keyword = tokenizer.get_feature_names()
 num_neg_keyword = len(neg_keyword)
-print('Number of Negative Keywords = '+ str(num_neg_keyword) )
+print('Number of Negative Keywords = ' + str(num_neg_keyword) )
 print neg_keyword
 
 
