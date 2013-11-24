@@ -2,6 +2,9 @@ import sklearn.feature_extraction.text as skltext
 import en
 import numpy as np
 import spellcheck
+import re
+from nltk.stem import WordNetLemmatizer
+
 
 # extract a subset of tweet with maximum membership of certain class
 def extract_tweet_subset(train_tweet, train_s, class_type):
@@ -26,6 +29,7 @@ def vectorize(min_occur=30, binary=False, min_n=1, max_n=2):
 
     return skltext.CountVectorizer(min_df=min_occur,  binary=binary, ngram_range=(min_n, max_n),
                                    strip_accents='unicode', lowercase=True, stop_words='english')
+                                  # tokenizer=lemmatizer.LemmaTokenizer())
 
 
 # Get the keywords frequency of a text
@@ -40,17 +44,20 @@ def get_keywords(vectorizer):
 
 # Filter out bad keyword
 def filter_keywords(keywords, counts):
+
     num_keyword = len(keywords)
 
-
-
-    # remove keywords that are numbers
     remove_key = []
     for key in range(0, num_keyword):
+        # remove keywords that are numbers
         if en.is_number(keywords[key]):
             remove_key.append(key)
-
-
+        #remove special keywords - mention
+        elif keywords[key].find('mention') != -1:
+            remove_key.append(key)
+        #remove special keywords - rt
+        elif keywords[key].find('rt') != -1:
+            remove_key.append(key)
 
     # remove the associated keyword and the token counts
     counts = np.delete(counts, remove_key, 1)
@@ -58,9 +65,11 @@ def filter_keywords(keywords, counts):
 
 
 
-    #spelling correction
+    #spelling correction and lemmatizing
+    lemmatizer = WordNetLemmatizer()
     for i, word in enumerate(keywords):
-        keywords[i] = spellcheck.correct(word)
+        keywords[i] = lemmatizer.lemmatize(spellcheck.correct(word))
+
     return keywords, counts
 
 # List of important keyword and their number of occurances
