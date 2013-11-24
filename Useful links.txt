@@ -2,4 +2,4 @@ Different ways of using NLTK to Tokenize
 http://nltk.googlecode.com/svn-/trunk/doc/howto/tokenize.html
 
 How to make a Spell Checker
-http://blog.mattalcock.com/2012/12/5/python-spell-checker/
+http://norvig.com/spell-correct.html
