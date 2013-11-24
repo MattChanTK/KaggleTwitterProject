@@ -1,3 +1,5 @@
+# source: http://norvig.com/spell-correct.html
+
 import re, collections
 
 def words(text): return re.findall('[a-z]+', text.lower()) 
@@ -30,4 +32,3 @@ def correct(word):
     return max(candidates, key=NWORDS.get)
 
 
-print correct('speling')

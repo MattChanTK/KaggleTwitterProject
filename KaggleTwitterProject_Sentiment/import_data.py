@@ -1,6 +1,5 @@
 import csv
 
-
 def column(matrix, i):
     return [row[i] for row in matrix]
 
@@ -42,5 +41,9 @@ def extract_sentiment(train_sample):
                     train_s[i][j] = float(train_s[i][j])
 
     return train_s
+
+
+
+
 
 
