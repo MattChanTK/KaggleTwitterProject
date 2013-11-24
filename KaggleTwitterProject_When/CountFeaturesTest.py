@@ -1,3 +1,4 @@
+__author__ = 'Ivan'
 import pandas as p
 import numpy as np
 from collections import Counter
@@ -11,10 +12,10 @@ Text = t['tweet']# Transform raw text documents to tfidf vectors. Learn a conver
 test = t2['tweet'] # Apply the transformation to the test data
 y = np.array(t.ix[:, 9:13])# ix divides the data in columns
 #counts how many of verbs, nouns, etc are there
-sz=len(Text)
+sz=len(test)
 X=np.zeros(shape=(sz,6))
 
-for index, t in enumerate(Text):
+for index, t in enumerate(test):
     text = nltk.word_tokenize(t)
     a=nltk.pos_tag(text)
     counts = Counter(tag for word,tag in a)
@@ -26,4 +27,4 @@ for index, t in enumerate(Text):
     X[index, 5]=counts['MD']#Modal
     if index%1000==0:
         print index
-np.save('X',X)
+np.save('test',X)
