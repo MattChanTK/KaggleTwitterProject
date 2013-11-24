@@ -4,7 +4,8 @@ import numpy as np
 #import peach
 #import sklearn.feature_extraction.text as skltext
 import fea_extract
-from pprint import pprint
+
+
 
 import import_data as ip
 
