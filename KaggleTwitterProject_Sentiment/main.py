@@ -77,5 +77,9 @@ print('\nMerging the keyword lists')
 merged_keyword_list = fea_extract.merge_keyword_lists(keyword_list)
 fea_extract.print_keyword(merged_keyword_list, value_type='list')
 
+# Normalize the keywords to find the significant score for each sentiment class
+print('\nCalculating significant scores')
+merged_keyword_list = fea_extract.sig_score(merged_keyword_list)
+fea_extract.print_keyword(merged_keyword_list, value_type='list')
 
 

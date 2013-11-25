@@ -80,11 +80,15 @@ def keywords_list(keywords, counts):
     keywords_list = dict(zip(keywords, counts_sum))
     return keywords_list
 
+
+# nicely printing the dictionary on the screen
 def print_keyword(keywords, value_type='int'):
+
     sorted_dic = sorted(((v, k) for k, v in keywords.iteritems()), reverse=True)
+
     for v, k in sorted_dic:
-        #left aligned with 20 chars pad
-        k = '{:<20}'.format(k)
+        #left aligned with 25 chars pad
+        k = '{:<25}'.format(k)
         if value_type == 'int':
             print "%s: %d" % (k, v)
         elif value_type == 'float':
@@ -98,9 +102,9 @@ def print_keyword(keywords, value_type='int'):
             print "Value Type Not Found!"
             break
 
-
+# Merging and adding the keyword lists
 def merge_keyword_lists(keyword_list):
-    # Merging and adding the keyword lists
+
     merged_keywords = dict()
     num_class = len(keyword_list)
     for (i, d) in enumerate(keyword_list):
@@ -121,3 +125,13 @@ def merge_keyword_lists(keyword_list):
 #B = {'b':13, 'y':23, 'x':33, 'ufo':100}
 #C = {'ufo':11, 'a':20}
 #print merge_keyword_lists([A,B,C])
+
+# Normalize the keywords to find the significant score
+def sig_score(merged_keywords):
+
+    for k, v in merged_keywords.iteritems():
+        sum_score = sum(v)
+        for (i, score) in enumerate(v):
+            merged_keywords[k][i] = score/sum_score
+
+    return merged_keywords
