@@ -2,7 +2,6 @@ import sklearn.feature_extraction.text as skltext
 import en
 import numpy as np
 import spellcheck
-import re
 from nltk.stem import WordNetLemmatizer
 
 
@@ -58,6 +57,9 @@ def filter_keywords(keywords, counts):
         #remove special keywords - rt
         elif keywords[key].find('rt') != -1:
             remove_key.append(key)
+        #remove special keywords - rt
+        elif keywords[key].find('link') != -1:
+            remove_key.append(key)
 
     # remove the associated keyword and the token counts
     counts = np.delete(counts, remove_key, 1)
@@ -72,13 +74,50 @@ def filter_keywords(keywords, counts):
 
     return keywords, counts
 
-# List of important keyword and their number of occurances
+# List of important keyword and their number of occurrences
 def keywords_list(keywords, counts):
     counts_sum = sum(counts)
     keywords_list = dict(zip(keywords, counts_sum))
     return keywords_list
 
-def print_keyword(keywords):
+def print_keyword(keywords, value_type='int'):
     sorted_dic = sorted(((v, k) for k, v in keywords.iteritems()), reverse=True)
     for v, k in sorted_dic:
-        print "%s: %d" % (k, v)
+        #left aligned with 20 chars pad
+        k = '{:<20}'.format(k)
+        if value_type == 'int':
+            print "%s: %d" % (k, v)
+        elif value_type == 'float':
+            print "%s: %f" % (k, v)
+        elif value_type == 'list':
+            print "%s: " % k,
+            for s, val in enumerate(v):
+                print "%2.4f\t" % val,
+            print ""
+        else:
+            print "Value Type Not Found!"
+            break
+
+
+def merge_keyword_lists(keyword_list):
+    # Merging and adding the keyword lists
+    merged_keywords = dict()
+    num_class = len(keyword_list)
+    for (i, d) in enumerate(keyword_list):
+        for k, v in d.iteritems():
+            if k not in merged_keywords:
+                merged_keywords[k] = [0]*i
+                merged_keywords[k].append(v)
+                for j in range(i+1, num_class):
+                    merged_keywords[k].append(0)
+            else:
+                merged_keywords[k][i] = v
+
+    # Padding zeros.
+    return merged_keywords
+
+#test code for the merge_keyword function
+#A = {'a':1, 'b':2, 'c':3}
+#B = {'b':13, 'y':23, 'x':33, 'ufo':100}
+#C = {'ufo':11, 'a':20}
+#print merge_keyword_lists([A,B,C])
