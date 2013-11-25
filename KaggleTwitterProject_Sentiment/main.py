@@ -37,7 +37,7 @@ for class_type in range(0, num_class):
     print('\nNumber of S%d Tweets = ' % class_type + str(num_sub_tweet[class_type]))
 
     # extract keywords and their counts from the tweet
-    token_counter = fea_extract.vectorize(min_occur=int(num_sub_tweet[class_type]/100))
+    token_counter = fea_extract.vectorize(min_occur=int(num_sub_tweet[class_type]/200))
     sub_count = fea_extract.count_token(token_counter, sub_tweet)
 
     # get the keyword names
@@ -63,12 +63,9 @@ for class_type in range(0, num_class):
 
 # scale the occurrence counts based on their respective the number of tweets
 print('\nScaling the occurrence counts based on the number of tweets')
-for i in range(0, num_class):
-    num_keywords = len(keyword_list[i])
+keyword_list = fea_extract.scale_occur_counts(keyword_list, num_sub_tweet)
 
-    for k, v in keyword_list[i].iteritems():
-            keyword_list[i][k] = float(v)/float(num_sub_tweet[i])
-
+for i in range(0,num_class):
     print('Number of S%d Keywords = ' % i + str(len(keyword_list[i])))
     fea_extract.print_keyword(keyword_list[i], value_type='float')
 
@@ -81,5 +78,10 @@ fea_extract.print_keyword(merged_keyword_list, value_type='list')
 print('\nCalculating significant scores')
 merged_keyword_list = fea_extract.sig_score(merged_keyword_list)
 fea_extract.print_keyword(merged_keyword_list, value_type='list')
+print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))
 
-
+# Remove common keyword that has sizable percentage in all sentiment classes
+print('\nRemoving Common Keywords')
+merged_keyword_list = fea_extract.rm_common_keyword(merged_keyword_list, 0.4)
+fea_extract.print_keyword(merged_keyword_list, value_type='list')
+print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))

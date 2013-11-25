@@ -3,6 +3,7 @@ import en
 import numpy as np
 import spellcheck
 from nltk.stem import WordNetLemmatizer
+from nltk import word_tokenize
 
 
 # extract a subset of tweet with maximum membership of certain class
@@ -48,11 +49,24 @@ def filter_keywords(keywords, counts):
 
     remove_key = []
     for key in range(0, num_keyword):
-        # remove keywords that are numbers
-        if en.is_number(keywords[key]):
-            remove_key.append(key)
+        #tokenize the keyword first
+        tokens = word_tokenize(keywords[key])
+        for (i, token) in enumerate(tokens):
+            remove_key_added = False
+
+            # change keywords that are numbers to NUM
+            if en.is_number(token):
+                tokens[i] = 'number'
+            # remove connective
+            elif en.is_connective(token) & (not remove_key_added) :
+                remove_key.append(key)
+
+            #join tokens
+            keywords[key] = " ".join(tokens)
+
+        # operations that do not only work on a single word
         #remove special keywords - mention
-        elif keywords[key].find('mention') != -1:
+        if keywords[key].find('mention') != -1:
             remove_key.append(key)
         #remove special keywords - rt
         elif keywords[key].find('rt') != -1:
@@ -102,6 +116,19 @@ def print_keyword(keywords, value_type='int'):
             print "Value Type Not Found!"
             break
 
+
+# scale the occurrence counts based on their respective the number of tweets
+def scale_occur_counts(keyword_list, scaling_factors):
+
+    num_class = len(keyword_list)
+    for i in range(0, num_class):
+        for k, v in keyword_list[i].iteritems():
+            keyword_list[i][k] = float(v)/float(scaling_factors[i])
+
+    return keyword_list
+
+
+
 # Merging and adding the keyword lists
 def merge_keyword_lists(keyword_list):
 
@@ -127,6 +154,7 @@ def merge_keyword_lists(keyword_list):
 #print merge_keyword_lists([A,B,C])
 
 # Normalize the keywords to find the significant score
+# sig_score is basically how well a keyword can uniquely identify the class type of the tweet
 def sig_score(merged_keywords):
 
     for k, v in merged_keywords.iteritems():
@@ -135,3 +163,25 @@ def sig_score(merged_keywords):
             merged_keywords[k][i] = score/sum_score
 
     return merged_keywords
+
+# remove common keyword that has sizable percentage in all sentiment classes
+def rm_common_keyword(sig_score, min_score):
+
+    delete_key = []
+    for k, v in sig_score.iteritems():
+        over_threshold = False
+        #check if any of the score is over the minimum score
+        for score in v:
+            if score > min_score:
+                over_threshold = True
+                break
+
+        # if all were lower than the min score
+        if not over_threshold:
+            #add key to the to-be-deleted list
+            delete_key.append(k)
+
+    for key in delete_key:
+        del sig_score[key]
+
+    return sig_score
