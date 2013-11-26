@@ -31,18 +31,15 @@ def vectorize(min_occur=30, binary=False, min_n=1, max_n=2):
                                    strip_accents='unicode', lowercase=True, stop_words='english')
                                   # tokenizer=lemmatizer.LemmaTokenizer())
 
-
 # Get the keywords frequency of a text
 def count_token(vectorizer, text):
     return (vectorizer.fit_transform(text)).toarray()
-
-
 
 # Get the list of keywords
 def get_keywords(vectorizer):
     return vectorizer.get_feature_names()
 
-# Filter out bad keyword
+# apply keyword filter to remove bad keyword
 def filter_keywords(keywords, counts):
 
     num_keyword = len(keywords)
@@ -51,9 +48,12 @@ def filter_keywords(keywords, counts):
     for key in range(0, num_keyword):
 
         # operations that only work on a single word
-        tokens = word_tokenize(keywords[key])#tokenize the keyword first
+        tokens = word_tokenize(keywords[key])  # tokenize the keyword first
         for (i, token) in enumerate(tokens):
             remove_key_added = False
+
+            # spelling corrector
+            tokens[i] = spellcheck.correct(token)
 
             # change keywords that are numbers to NUM
             if en.is_number(token):
@@ -61,10 +61,10 @@ def filter_keywords(keywords, counts):
             # remove connective
             elif en.is_connective(token) & (not remove_key_added) :
                 remove_key.append(key)
-            #remove numbers in a token without space
+            # remove numbers in a token without space
             else:
                 tokens[i] = re.sub('[^a-zA-z*]', '', token )
-            #join tokens
+            # join tokens
             keywords[key] = " ".join(tokens)
 
         # operations that do not only work on a single word
@@ -90,7 +90,7 @@ def filter_keywords(keywords, counts):
     #spelling correction and lemmatizing
     lemmatizer = WordNetLemmatizer()
     for i, word in enumerate(keywords):
-        keywords[i] = lemmatizer.lemmatize(spellcheck.correct(word))
+        keywords[i] = lemmatizer.lemmatize(word)
 
     return keywords, counts
 
@@ -99,7 +99,6 @@ def keywords_list(keywords, counts):
     counts_sum = sum(counts)
     keywords_list = dict(zip(keywords, counts_sum))
     return keywords_list
-
 
 # nicely printing the dictionary on the screen
 def print_keyword(keywords, value_type='int'):
@@ -122,7 +121,6 @@ def print_keyword(keywords, value_type='int'):
             print "Value Type Not Found!"
             break
 
-
 # scale the occurrence counts based on their respective the number of tweets
 def scale_occur_counts(keyword_list, scaling_factors):
 
@@ -132,8 +130,6 @@ def scale_occur_counts(keyword_list, scaling_factors):
             keyword_list[i][k] = float(v)/float(scaling_factors[i])
 
     return keyword_list
-
-
 
 # Merging and adding the keyword lists
 def merge_keyword_lists(keyword_list):
@@ -191,4 +187,41 @@ def rm_common_keyword(sig_score, min_score):
         del sig_score[key]
 
     return sig_score
+
+
+# calculate of a text similarity scores for each class
+def calc_similarity(text, keywords, num_class):
+    token_counter = vectorize(min_occur=1, min_n=1, max_n=2)
+    token_count = count_token(token_counter, text)
+    tokens = get_keywords(token_counter)
+
+    tokens, token_count = filter_keywords(tokens, token_count)
+    words = keywords_list(tokens, token_count)
+
+    #calculate similarity score
+    s_score = np.zeros(num_class)
+    # multiple the significant score of the keyword by the word occurrence
+    for word in words:
+        if word in keywords:
+            s_score += np.array(keywords[word])*words[word]
+
+    #normalize s_score
+
+    sum_score = sum(s_score)
+    if sum_score == 0:  # if none of the keywords appeared
+        s_score = [0, 0, 0, 0, 1]  # not related to weather
+    else:
+        for (i, score) in enumerate(s_score):
+            s_score[i] = score/sum_score
+
+    #print tokens
+    #print token_count
+    #print s_score
+
+    return s_score
+
+#test for the calc_similarity function
+#test_keyword = {'distance':[0.6, 0.2, 0.2, 0, 0], 'words':[0.1, 0.9, 0.0, 0, 0]}
+#test_text = ['I defined a trivial model that says all known words of edit distance 1 are infinitely more probable than known words of edit distance 2, and infinitely less probable than a known word of edit distance 0']
+#calc_similarity(test_text, test_keyword, 5)
 

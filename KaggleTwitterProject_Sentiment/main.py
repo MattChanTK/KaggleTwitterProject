@@ -8,16 +8,20 @@ import fea_extract
 
 import import_data as ip
 
-train_sample = ip.import_csv('../Data/train.csv')
+train_data = ip.import_csv('../Data/train.csv')
 
-num_train_sample = len(train_sample)
+num_train_sample = len(train_data)
 print('Number of Training Data: ' + str(num_train_sample))
 
 # only using a subset of the training set
-train_sample = train_sample[0:num_train_sample]
+#train_sample = train_sample[0:num_train_sample]
+train_sample = train_data[0:int(num_train_sample-100)]
+test_sample = train_data[int(num_train_sample-100): int(num_train_sample)]
 
 # extract the tweet strings
 train_tweet = ip.extract_tweet(train_sample)
+test_tweet = ip.extract_tweet(test_sample)
+
 # count the number of samples
 train_num_sample = len(train_tweet)
 print('Number of Training Tweet Subset: ' + str(train_num_sample))
@@ -29,7 +33,7 @@ num_class = len(train_s[0])
 keyword_list = []
 num_sub_tweet = np.zeros(num_class,  dtype=int)
 
-# computer keywords for each sentiment type
+# compute keywords for each sentiment type
 for class_type in range(0, num_class):
 
     sub_tweet = fea_extract.extract_tweet_subset(train_tweet, train_s, class_type)
@@ -85,3 +89,19 @@ print('\nRemoving Common Keywords')
 merged_keyword_list = fea_extract.rm_common_keyword(merged_keyword_list, 0.4)
 fea_extract.print_keyword(merged_keyword_list, value_type='list')
 print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))
+
+
+
+# Generating similarity score as feature
+print('\nGenerating similarity score as feature')
+sim_scores = []
+for test_text in test_tweet:
+    score = fea_extract.calc_similarity([test_text], merged_keyword_list, num_class)
+    #print score
+    sim_scores.append(score)
+
+for (i, tweet_content) in enumerate(test_tweet):
+    print(tweet_content)
+    for score in sim_scores[i]:
+        print "%2.4f\t" % score,
+    print ""
