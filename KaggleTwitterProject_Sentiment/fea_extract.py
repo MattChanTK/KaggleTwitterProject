@@ -53,7 +53,7 @@ def filter_keywords(keywords, counts):
             remove_key_added = False
 
             # spelling corrector
-            tokens[i] = spellcheck.correct(token)
+            #tokens[i] = spellcheck.correct(token)
 
             # change keywords that are numbers to NUM
             if en.is_number(token):
@@ -205,8 +205,8 @@ def calc_similarity(text, keywords, num_class):
         if word in keywords:
             s_score += np.array(keywords[word])*words[word]
 
-    #normalize s_score
 
+    #normalize s_score
     sum_score = sum(s_score)
     if sum_score == 0:  # if none of the keywords appeared
         s_score = [0, 0, 0, 0, 1]  # not related to weather

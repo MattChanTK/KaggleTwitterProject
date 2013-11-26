@@ -4,9 +4,8 @@ import numpy as np
 #import peach
 #import sklearn.feature_extraction.text as skltext
 import fea_extract
-
-
 import import_data as ip
+import evaluation as eval
 
 train_data = ip.import_csv('../Data/train.csv')
 
@@ -18,6 +17,7 @@ print('Number of Training Data: ' + str(num_train_sample))
 train_sample = train_data[0:int(num_train_sample-100)]
 test_sample = train_data[int(num_train_sample-100): int(num_train_sample)]
 
+
 # extract the tweet strings
 train_tweet = ip.extract_tweet(train_sample)
 test_tweet = ip.extract_tweet(test_sample)
@@ -28,6 +28,7 @@ print('Number of Training Tweet Subset: ' + str(train_num_sample))
 
 # extract the sentiment counts
 train_s = ip.extract_sentiment(train_sample)
+test_s = ip.extract_sentiment(test_sample)
 num_class = len(train_s[0])
 
 keyword_list = []
@@ -86,7 +87,7 @@ print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))
 
 # Remove common keyword that has sizable percentage in all sentiment classes
 print('\nRemoving Common Keywords')
-merged_keyword_list = fea_extract.rm_common_keyword(merged_keyword_list, 0.4)
+merged_keyword_list = fea_extract.rm_common_keyword(merged_keyword_list, 0.1)
 fea_extract.print_keyword(merged_keyword_list, value_type='list')
 print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))
 
@@ -95,13 +96,18 @@ print('Number of S%d Keywords = ' % i + str(len(merged_keyword_list)))
 # Generating similarity score as feature
 print('\nGenerating similarity score as feature')
 sim_scores = []
+step = 0
 for test_text in test_tweet:
     score = fea_extract.calc_similarity([test_text], merged_keyword_list, num_class)
-    #print score
     sim_scores.append(score)
+    step += 1
+    if step % 10 == 0:
+        print step
 
 for (i, tweet_content) in enumerate(test_tweet):
     print(tweet_content)
     for score in sim_scores[i]:
         print "%2.4f\t" % score,
     print ""
+
+print eval.rmse(sim_scores, test_s)
