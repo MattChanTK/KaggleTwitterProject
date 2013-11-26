@@ -4,7 +4,7 @@ import numpy as np
 import spellcheck
 from nltk.stem import WordNetLemmatizer
 from nltk import word_tokenize
-
+import re
 
 # extract a subset of tweet with maximum membership of certain class
 def extract_tweet_subset(train_tweet, train_s, class_type):
@@ -60,7 +60,9 @@ def filter_keywords(keywords, counts):
             # remove connective
             elif en.is_connective(token) & (not remove_key_added) :
                 remove_key.append(key)
-
+            #remove numbers in a token without space
+            else:
+                tokens[i] = re.sub('^[^a-zA-z]', '', token )
             #join tokens
             keywords[key] = " ".join(tokens)
 
