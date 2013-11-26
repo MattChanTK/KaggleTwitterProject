@@ -49,8 +49,9 @@ def filter_keywords(keywords, counts):
 
     remove_key = []
     for key in range(0, num_keyword):
-        #tokenize the keyword first
-        tokens = word_tokenize(keywords[key])
+
+        # operations that only work on a single word
+        tokens = word_tokenize(keywords[key])#tokenize the keyword first
         for (i, token) in enumerate(tokens):
             remove_key_added = False
 
@@ -62,7 +63,7 @@ def filter_keywords(keywords, counts):
                 remove_key.append(key)
             #remove numbers in a token without space
             else:
-                tokens[i] = re.sub('^[^a-zA-z]', '', token )
+                tokens[i] = re.sub('[^a-zA-z*]', '', token )
             #join tokens
             keywords[key] = " ".join(tokens)
 
@@ -75,6 +76,9 @@ def filter_keywords(keywords, counts):
             remove_key.append(key)
         #remove special keywords - rt
         elif keywords[key].find('link') != -1:
+            remove_key.append(key)
+        #remove keywords with less than three characters
+        elif len(keywords[key]) < 3:
             remove_key.append(key)
 
     # remove the associated keyword and the token counts
@@ -187,3 +191,4 @@ def rm_common_keyword(sig_score, min_score):
         del sig_score[key]
 
     return sig_score
+
