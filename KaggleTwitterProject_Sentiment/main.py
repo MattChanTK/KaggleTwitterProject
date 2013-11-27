@@ -1,7 +1,8 @@
 
 import numpy as np
-from scipy import sparse
-from sklearn.feature_extraction.text import TfidfVectorizer
+import cPickle as pickle
+#from scipy import sparse
+#from sklearn.feature_extraction.text import TfidfVectorizer
 #import en
 #import peach
 #import sklearn.feature_extraction.text as skltext
@@ -22,7 +23,9 @@ saved_test_fea = []
 
 for c in classes:
     try:
-        saved_keywords_list.append(np.load('keywords_list_'+c+'.npy'))
+        with open('keywords_list_'+c+'.p', 'rb') as fp:
+            saved_keywords_list.append(pickle.load(fp))
+        #saved_keywords_list.append(np.load('keywords_list_'+c+'.npy'))
         saved_train_fea.append(np.load('train_fea_'+c+'.npy'))
         saved_test_fea.append(np.load('test_fea_'+c+'.npy'))
 
@@ -36,16 +39,16 @@ print('Number of Training Data: ' + str(num_train_sample))
 
 header = ip.extract_header(train_data)
 
-
+'''
 # only using a subset of the training set
 #train_sample = train_sample[0:num_train_sample]
 train_sample = train_data[0:int(num_train_sample)]
 test_sample = train_data[int(num_train_sample-2000): int(num_train_sample)]
 '''
-num_data = 1000
+num_data = 10000
 train_sample = train_data[0:int(num_data)]
 test_sample = train_data[int(num_data): int(num_data+100)]
-'''
+
 
 # extract the tweet strings
 train_tweet = ip.extract_tweet(train_sample)
@@ -82,7 +85,7 @@ for c in range(0, len(classes)):
             print('\nNumber of %s%d Tweets = ' % (classes[c], class_type) + str(num_sub_tweet[class_type]))
 
             # extract keywords and their counts from the tweet
-            token_counter = fea_extract.vectorize(min_occur=int(num_sub_tweet[class_type]/1000*num_class))
+            token_counter = fea_extract.vectorize(min_occur=max(int(num_sub_tweet[class_type]/(1000/num_class)), 2))
             sub_count = fea_extract.count_token(token_counter, sub_tweet)
 
             # get the keyword names
@@ -123,16 +126,18 @@ for c in range(0, len(classes)):
         print('\nCalculating significant scores')
         merged_keyword_list = fea_extract.sig_score(merged_keyword_list)
         fea_extract.print_keyword(merged_keyword_list, value_type='list')
-        print('Number of %s%d Keywords = ' % (classes[c], i )+ str(len(merged_keyword_list)))
+        print('Number of %s Keywords = ' % classes[c] + str(len(merged_keyword_list)))
 
         # Remove common keyword that has sizable percentage in all sentiment classes
         print('\nRemoving Common Keywords')
         merged_keyword_list = fea_extract.rm_common_keyword(merged_keyword_list, 0.1)
         fea_extract.print_keyword(merged_keyword_list, value_type='list')
-        print('Number of %s%d Keywords = ' % (classes[c], i) + str(len(merged_keyword_list)))
+        print('Number of %s Keywords = ' % classes[c] + str(len(merged_keyword_list)))
 
-        merged_keyword_list = np.array(merged_keyword_list)
-        np.save('keywords_list_'+ str(classes[c]),merged_keyword_list)
+       # merged_keyword_list = np.array(merged_keyword_list)
+       # np.save('keywords_list_'+ str(classes[c]),merged_keyword_list)
+        with open('keywords_list_' + str(classes[c] + '.p'), 'wb') as fp:
+            pickle.dump(merged_keyword_list, fp)
 
     # Generating similarity score as feature for training data
     if len(saved_train_fea[c]) > 0:

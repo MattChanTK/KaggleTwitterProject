@@ -59,8 +59,8 @@ def filter_keywords(keywords, counts):
             if en.is_number(token):
                 tokens[i] = 'number'
             # remove connective
-            elif en.is_connective(token) & (not remove_key_added) :
-                remove_key.append(key)
+            #elif en.is_connective(token) & (not remove_key_added) :
+            #    remove_key.append(key)
             # remove numbers in a token without space
             else:
                 tokens[i] = re.sub('[^a-zA-z*]', '', token )
@@ -86,12 +86,12 @@ def filter_keywords(keywords, counts):
     keywords = np.delete(keywords, remove_key)
 
 
-
+    '''
     #spelling correction and lemmatizing
     lemmatizer = WordNetLemmatizer()
     for i, word in enumerate(keywords):
         keywords[i] = lemmatizer.lemmatize(word)
-
+    '''
     return keywords, counts
 
 # List of important keyword and their number of occurrences
@@ -210,9 +210,9 @@ def calc_similarity(text, keywords, num_class):
     sum_score = sum(s_score)
     if sum_score == 0:  # if none of the keywords appeared
         if num_class == 5:
-            s_score = [0, 0, 0, 0, 1]  # not related to weather
+            s_score = [0.8, 0, 0, 0, 0.2]  # not related to weather
         elif num_class == 4:
-            s_score = [0, 0, 0, 0]
+            s_score = [0, 0, 0, 1]
         else:
             s_score = [0.25]*num_class
     else:
