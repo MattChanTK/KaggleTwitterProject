@@ -209,7 +209,12 @@ def calc_similarity(text, keywords, num_class):
     #normalize s_score
     sum_score = sum(s_score)
     if sum_score == 0:  # if none of the keywords appeared
-        s_score = [0, 0, 0, 0, 1]  # not related to weather
+        if num_class == 5:
+            s_score = [0, 0, 0, 0, 1]  # not related to weather
+        elif num_class == 4:
+            s_score = [0, 0, 0, 0]
+        else:
+            s_score = [0.25]*num_class
     else:
         for (i, score) in enumerate(s_score):
             s_score[i] = score/sum_score
@@ -220,8 +225,24 @@ def calc_similarity(text, keywords, num_class):
 
     return s_score
 
-#test for the calc_similarity function
-#test_keyword = {'distance':[0.6, 0.2, 0.2, 0, 0], 'words':[0.1, 0.9, 0.0, 0, 0]}
-#test_text = ['I defined a trivial model that says all known words of edit distance 1 are infinitely more probable than known words of edit distance 2, and infinitely less probable than a known word of edit distance 0']
-#calc_similarity(test_text, test_keyword, 5)
+# test for the calc_similarity function
+# test_keyword = {'distance':[0.6, 0.2, 0.2, 0, 0], 'words':[0.1, 0.9, 0.0, 0, 0]}
+# test_text = ['I defined a trivial model that says all known words of edit distance 1 are infinitely more probable than known words of edit distance 2, and infinitely less probable than a known word of edit distance 0']
+# train_fea = calc_similarity(test_text, test_keyword, 5)
+
+def calc_fea(tweet, keyword_list, num_class):
+
+    sim_scores = []
+    step = 0
+    for text in tweet:
+        score = calc_similarity([text], keyword_list, num_class)
+        if len(sim_scores) == 0:
+            sim_scores = score
+        else:
+            sim_scores = np.vstack((sim_scores, score))
+        step += 1
+        if step % 100 == 0:
+            print step
+
+    return sim_scores
 
