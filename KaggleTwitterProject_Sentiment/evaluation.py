@@ -17,10 +17,11 @@ def rmse(predicted, actual):
 #B = [[0.3, 0.4, 0.3], [0.5, 0.2, 0.3]]
 #print rmse(A, B)
 
-def output_csv(id, test_prediction, num_classes):
+def output_csv(id, test_prediction, num_classes, header):
     #save in the right format
     prediction = np.array(np.hstack([np.matrix(id).T, test_prediction]))#array: converts the list to array. Hstack: stack arrays horizontally
-
+    #heading = np.array(np.hstack([header[0], header[4:28]]))
+    #prediction = np.array(np.vstack([heading, prediction]))
     #matrix: creates a matrix (increase from 1 to more dimensions. T:transpose
     col = '%i,' + '%f,'* (num_classes - 1) + '%f'
     np.savetxt('prediction.csv', prediction, col, delimiter=',')

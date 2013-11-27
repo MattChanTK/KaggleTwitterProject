@@ -13,6 +13,7 @@ import classification as clf
 
 # loading data from files
 train_data = ip.import_csv('../Data/train.csv')
+test_data = ip.import_csv('../Data/test.csv')
 
 
 # loading the pre computed data
@@ -20,14 +21,14 @@ classes = ['s', 'w', 'c']
 saved_keywords_list = []
 saved_train_fea = []
 saved_test_fea = []
-
+output_folder = 'outputs/'
 for c in classes:
     try:
-        with open('keywords_list_'+c+'.p', 'rb') as fp:
+        with open(output_folder + 'keywords_list_'+c+'.p', 'rb') as fp:
             saved_keywords_list.append(pickle.load(fp))
         #saved_keywords_list.append(np.load('keywords_list_'+c+'.npy'))
-        saved_train_fea.append(np.load('train_fea_'+c+'.npy'))
-        saved_test_fea.append(np.load('test_fea_'+c+'.npy'))
+        saved_train_fea.append(np.load(output_folder + 'train_fea_'+c+'.npy'))
+        saved_test_fea.append(np.load(output_folder + 'test_fea_'+c+'.npy'))
 
     except IOError:
         saved_keywords_list.append([])
@@ -36,19 +37,24 @@ for c in classes:
 
 num_train_sample = len(train_data)
 print('Number of Training Data: ' + str(num_train_sample))
+num_test_sample = len(test_data)
+print('Number of Test Data: ' + str(num_test_sample))
 
 header = ip.extract_header(train_data)
 
-'''
+
 # only using a subset of the training set
-#train_sample = train_sample[0:num_train_sample]
+train_sample = train_data[0:num_train_sample]
+test_sample = test_data[0:num_test_sample]
+
+'''
 train_sample = train_data[0:int(num_train_sample)]
 test_sample = train_data[int(num_train_sample-2000): int(num_train_sample)]
-'''
+
 num_data = 10000
 train_sample = train_data[0:int(num_data)]
 test_sample = train_data[int(num_data): int(num_data+100)]
-
+'''
 
 # extract the tweet strings
 train_tweet = ip.extract_tweet(train_sample)
@@ -136,7 +142,7 @@ for c in range(0, len(classes)):
 
        # merged_keyword_list = np.array(merged_keyword_list)
        # np.save('keywords_list_'+ str(classes[c]),merged_keyword_list)
-        with open('keywords_list_' + str(classes[c] + '.p'), 'wb') as fp:
+        with open(output_folder + 'keywords_list_' + str(classes[c] + '.p'), 'wb') as fp:
             pickle.dump(merged_keyword_list, fp)
 
     # Generating similarity score as feature for training data
@@ -146,7 +152,7 @@ for c in range(0, len(classes)):
     else:
         print('\nGenerating similarity score as features for training data')
         train_fea = fea_extract.calc_fea(train_tweet, merged_keyword_list, num_class)
-        np.save('train_fea_' + str(classes[c]), train_fea)
+        np.save(output_folder + 'train_fea_' + str(classes[c]), train_fea)
 
         for (i, tweet_content) in enumerate(train_tweet):
             print(tweet_content)
@@ -163,7 +169,7 @@ for c in range(0, len(classes)):
         print('\nGenerating similarity score as features for testing data')
 
         test_fea = fea_extract.calc_fea(test_tweet, merged_keyword_list, num_class)
-        np.save('test_fea_' + str(classes[c]), test_fea)
+        np.save(output_folder + 'test_fea_' + str(classes[c]), test_fea)
 
         for (i, tweet_content) in enumerate(test_tweet):
             print(tweet_content)
@@ -190,8 +196,7 @@ for c in range(0, len(classes)):
 
 # Classification using Ridge Regression
 all_train_mem = ip.extract_membership(train_sample, class_type='all')
-all_test_mem = ip.extract_membership(test_sample, class_type='all')
-
+#all_test_mem = ip.extract_membership(test_sample, class_type='all')
 '''
 for i in range(len(all_train_mem)):
     all_train_mem[i] = np.array(all_train_mem[i])
@@ -205,6 +210,8 @@ all_test_mem = sparse.csr_matrix(all_test_mem)
 test_rating = clf.linear_ridge_classify(all_test_fea, all_train_fea, all_train_mem)
 print test_rating
 
-print eval.rmse(test_rating, all_test_mem)
 
-eval.output_csv(test_id, test_rating, 24)
+eval.output_csv(test_id, test_rating, 24, header)
+
+#cross-validation
+#print eval.rmse(test_rating, all_test_mem)

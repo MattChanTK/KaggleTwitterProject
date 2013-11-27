@@ -201,8 +201,10 @@ def calc_similarity(text, keywords, num_class):
     #calculate similarity score
     s_score = np.zeros(num_class)
     # multiple the significant score of the keyword by the word occurrence
+    # print words
     for word in words:
         if word in keywords:
+
             s_score += np.array(keywords[word])*words[word]
 
 
@@ -235,6 +237,7 @@ def calc_fea(tweet, keyword_list, num_class):
     sim_scores = []
     step = 0
     for text in tweet:
+        text = text.decode('ascii', 'ignore')
         score = calc_similarity([text], keyword_list, num_class)
         if len(sim_scores) == 0:
             sim_scores = score
